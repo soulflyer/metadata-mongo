@@ -76,7 +76,9 @@
 (defn is-image?
   "Checks if a string ends in jpg"
   [filename]
-  ())
+  (if (re-find #".jpg$" filename)
+    true
+    false))
 
 (defn image-entry
   "Creates a map describing the given image for inclusion in the database
