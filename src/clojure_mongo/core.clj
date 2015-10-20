@@ -73,7 +73,10 @@
   ;;  (filter (complement str/blank?) (str/split path #"/"))
   (str/split path #"/"))
 
-(image-id "2015" "09" "01-Lui-DSD" "IMG_6666.jpg")
+(defn is-image?
+  "Checks if a string ends in jpg"
+  [filename]
+  ())
 
 (defn image-entry
   "Creates a map describing the given image for inclusion in the database
@@ -102,15 +105,22 @@
   (mc/save db "documents" (image-entry "/Users/iain/Pictures/Published/fullsize/2015/09/01-Lui-DSD/DIW_5490.jpg")))
 
 (defn save-meta
-  "Saves the metadata from a specified picture to the database
-  [file database document]"
+  "Saves the metadata from a specified picture, or from all the jpeg pictures
+  in a directory to the database.
+  [pathname database document]"
   ([pathname database document]
    (let [connection (mg/connect)
          db (mg/get-db connection database)
-         imagemeta (image-entry pathname)]
-     (mc/save db document imagemeta))))
+         file (java.io.File. pathname)]
+     (if (.isFile file)
+       (let [imagemeta (image-entry pathname)]
+         (mc/save db document imagemeta))
+       (for [filename (.list file)]
+         (mc/save db document (image-entry (str pathname "/" filename))))
+       ))))
 
-(save-meta "/Users/iain/Pictures/Published/fullsize/2015/09/19-Beetle/DIW_5633.jpg" "monger-test" "documents")
+(save-meta "/Users/iain/Pictures/Published/fullsize/2015/09/19-Beetle/DIW_5634.jpg" "monger-test" "documents")
+(save-meta "/Users/iain/Pictures/Published/fullsize/2015/09/19-Beetle" "monger-test" "documents")
 
 ;; (selectedmeta file)
 ;; (image-entry "/Users/iain/Pictures/Published/fullsize" 2015 "09" "01-Dragon" "IMG_6666.jpg")
