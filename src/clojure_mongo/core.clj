@@ -1,7 +1,8 @@
 (ns metadata-mongo.core
   (:require [monger.core :as mg]
             [monger.collection :as mc]
-            [metadata.core :as metadata])
+            [metadata.core :as metadata]
+            [clojure.string :as str])
   (:import [com.mongodb MongoOptions ServerAddress]
            org.bson.types.ObjectId))
 
@@ -45,8 +46,6 @@
                          "White-Balance Mode")]
     (metadata/getmeta file metadatafields)))
 
-(selectedmeta file)
-
 (defn basename
   "Cuts the extension off the end of a string
   (basename \"file.jpg\")
@@ -61,15 +60,34 @@
       (subs filename 0 ind)
       filename)))
 
-(defn image-id
-  "Creates an image id for the _id field based on the year, month, folder name and filename"
-  ([year month project filename]
-   (str year month project (basename filename))))
+(defn path-items
+  "returns a list of all sections of a / seperated path
+  (path-items \"/usr/local/bin\")
+  =>  (\"\" \"usr\" \"local\" \"bin\")
+  (path-items \"usr/local/bin\")
+  =>  (\"usr\" \"local\" \"bin\")"
+
+  [path]
+  ;; use this line for a version that doesn't have the leading empty string that
+  ;; denotes a path with a leading /
+  ;;  (filter (complement str/blank?) (str/split path #"/"))
+  (str/split path #"/"))
 
 (image-id "2015" "09" "01-Lui-DSD" "IMG_6666.jpg")
 
 (defn image-entry
-  "Creates a map describing the given image for inclusion in the database"
+  "Creates a map describing the given image for inclusion in the database
+  [\"/path/to/image/year/month/project/filename\"]
+  [\"rootdir\" \"year\" \"month\" \"project\" \"filename\"]"
+  ([fullpath]
+   (let [pathlist (vec (path-items fullpath))
+         filename (last pathlist)
+         items    (count pathlist)
+         project  (nth pathlist (- items 2))
+         month    (nth pathlist (- items 3))
+         year     (nth pathlist (- items 4))
+         rootdir  (str/join "/" (subvec pathlist 0 (- items 4)))]
+     (image-entry rootdir year month project filename)))
   ([rootdir year month project filename]
    (let [path (str rootdir "/" year "/" month "/" project "/" filename)
          file (java.io.File. path)
@@ -78,52 +96,28 @@
                        :_id (str year month project (basename filename))}]
      (merge filedetails (selectedmeta file)))))
 
-(image-entry "/Users/iain/Pictures/Published/fullsize" "2015" "09" "01-Dragon" "IMG_6666.jpg")
-
 (let [conn (mg/connect)
       db   (mg/get-db conn "monger-test")]
-  (mc/insert db "documents" (metadata/getmeta file metadatafields)))
+  (mc/save db "documents" (image-entry "/Users/iain/Pictures/Published/fullsize" "2015" "09" "01-Dragon" "IMG_6666.jpg"))
+  (mc/save db "documents" (image-entry "/Users/iain/Pictures/Published/fullsize/2015/09/01-Lui-DSD/DIW_5490.jpg")))
 
+(defn save-meta
+  "Saves the metadata from a specified picture to the database
+  [file database document]"
+  ([pathname database document]
+   (let [connection (mg/connect)
+         db (mg/get-db connection database)
+         imagemeta (image-entry pathname)]
+     (mc/save db document imagemeta))))
+
+(save-meta "/Users/iain/Pictures/Published/fullsize/2015/09/19-Beetle/DIW_5633.jpg" "monger-test" "documents")
+
+;; (selectedmeta file)
+;; (image-entry "/Users/iain/Pictures/Published/fullsize" 2015 "09" "01-Dragon" "IMG_6666.jpg")
 
 ;; (def filename "/Users/iain/Pictures/Published/fullsize/2015/09/01-Lui-DSD/DIW_5490.jpg")
 ;; (def beetlefile "/Users/iain/Pictures/Published/fullsize/2015/09/19-Beetle/DIW_5633.jpg")
 ;; (def file (java.io.File. filename))
 ;; (def beetle (java.io.File. beetlefile))
-;; (def metadatafields '(
-;;                       "Aperture Value"
-;;                       "Artist"
-;;                       "By-Line"
-;;                       "Camera Owner Name"
-;;                       "Caption/Abstract"
-;;                       "Color Space"
-;;                       "Copyright"
-;;                       "Copyright Notice"
-;;                       "Data Precision"
-;;                       "Date/Time Digitized"
-;;                       "Date/Time Original"
-;;                       "Exposure Bias Value"
-;;                       "Exposure Mode"
-;;                       "Exposure Program"
-;;                       "Exposure Time"
-;;                       "F-Number"
-;;                       "File Modified Date"
-;;                       "Flash"
-;;                       "Focal Length"
-;;                       "Focal Length 35"
-;;                       "ISO Speed Ratings"
-;;                       "Image Height"
-;;                       "Image Width"
-;;                       "Lens"
-;;                       "Make"
-;;                       "Metering Mode"
-;;                       "Model"
-;;                       "Object Name"
-;;                       "Rating"
-;;                       "Reference Date"
-;;                       "Software"
-;;                       "Special Instructions"
-;;                       "User Comment"
-;;                       "White Balance"
-;;                       "White-Balance Mode"))
 ;; (metadata/getmeta file)
 ;; (metadata/getmeta file metadatafields)
