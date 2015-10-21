@@ -1,6 +1,7 @@
 (ns metadata-mongo.core
   (:require [monger.core :as mg]
             [monger.collection :as mc]
+            [monger.operators :refer :all]
             [metadata.core :as metadata]
             [clojure.string :as str])
   (:import [com.mongodb MongoOptions ServerAddress]
@@ -32,6 +33,7 @@
                          "ISO Speed Ratings"
                          "Image Height"
                          "Image Width"
+                         "Keywords"
                          "Lens"
                          "Make"
                          "Metering Mode"
@@ -43,8 +45,16 @@
                          "Special Instructions"
                          "User Comment"
                          "White Balance"
-                         "White-Balance Mode")]
+                         "White Balance Mode")]
     (metadata/getmeta file metadatafields)))
+
+(defn meta-and-keywords-array
+  "takes a map of metadata fields and converts the keywords from a string
+  to a list of strings"
+  [metadatamap]
+  (let [othermeta (dissoc metadatamap "Keywords")
+        keywords (str/split (metadatamap "Keywords") #";")]
+    (merge othermeta {"Keywords" keywords})))
 
 (defn basename
   "Cuts the extension off the end of a string
@@ -98,13 +108,9 @@
          file (java.io.File. path)
          filedetails { "Year" year "Month" month
                        "Project" project "Version" (basename filename)
-                       :_id (str year month project (basename filename))}]
-     (merge filedetails (selectedmeta file)))))
-
-(let [conn (mg/connect)
-      db   (mg/get-db conn "monger-test")]
-  (mc/save db "documents" (image-entry "/Users/iain/Pictures/Published/fullsize" "2015" "09" "01-Dragon" "IMG_6666.jpg"))
-  (mc/save db "documents" (image-entry "/Users/iain/Pictures/Published/fullsize/2015/09/01-Lui-DSD/DIW_5490.jpg")))
+                       :_id (str year month project (basename filename))}
+         metaarray   (meta-and-keywords-array (selectedmeta file))]
+     (merge filedetails metaarray))))
 
 (defn save-meta
   "Saves the metadata from a specified picture, or from all the jpeg pictures
@@ -117,19 +123,9 @@
      (if (.isFile file)
        (let [imagemeta (image-entry pathname)]
          (mc/save db document imagemeta))
-       (for [filename (.list file)]
+       (for [filename (filter is-image? (.list file))]
          (mc/save db document (image-entry (str pathname "/" filename))))
        ))))
 
-(save-meta "/Users/iain/Pictures/Published/fullsize/2015/09/19-Beetle/DIW_5634.jpg" "monger-test" "documents")
+;; (save-meta "/Users/iain/Pictures/Published/fullsize/2015/09/19-Beetle/DIW_5634.jpg" "monger-test" "documents")
 (save-meta "/Users/iain/Pictures/Published/fullsize/2015/09/19-Beetle" "monger-test" "documents")
-
-;; (selectedmeta file)
-;; (image-entry "/Users/iain/Pictures/Published/fullsize" 2015 "09" "01-Dragon" "IMG_6666.jpg")
-
-;; (def filename "/Users/iain/Pictures/Published/fullsize/2015/09/01-Lui-DSD/DIW_5490.jpg")
-;; (def beetlefile "/Users/iain/Pictures/Published/fullsize/2015/09/19-Beetle/DIW_5633.jpg")
-;; (def file (java.io.File. filename))
-;; (def beetle (java.io.File. beetlefile))
-;; (metadata/getmeta file)
-;; (metadata/getmeta file metadatafields)
