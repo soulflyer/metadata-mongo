@@ -1,11 +1,22 @@
 (ns metadata-mongo.core
-  (:require [monger.core :as mg]
-            [monger.collection :as mc]
+  (:require [monger.collection :as mc]
+            [monger.core :as mg]
             [monger.operators :refer :all]
             [metadata.core :as metadata]
-            [clojure.string :as str])
+            [clojure.string :as str]
+            [clojure.tools.cli :refer [parse-opts]])
   (:import [com.mongodb MongoOptions ServerAddress]
-           org.bson.types.ObjectId))
+           org.bson.types.ObjectId)
+  (:gen-class))
+
+(def cli-options
+  [["-h" "--help"]])
+
+;; (defn -main [& args]
+;;   (save-meta args))
+
+;; (defn -main [& args]
+;;   (println "My CLI received arguments:" args))
 
 (defn selectedmeta
   "returns a map of selected metdata fields from file"
@@ -108,7 +119,7 @@
          file (java.io.File. path)
          filedetails { "Year" year "Month" month
                        "Project" project "Version" (basename filename)
-                       :_id (str year month project (basename filename))}
+                       "_id" (str year month project (basename filename))}
          metaarray   (meta-and-keywords-array (selectedmeta file))]
      (merge filedetails metaarray))))
 
@@ -123,9 +134,15 @@
      (if (.isFile file)
        (let [imagemeta (image-entry pathname)]
          (mc/save db document imagemeta))
-       (for [filename (filter is-image? (.list file))]
-         (mc/save db document (image-entry (str pathname "/" filename))))
+       (doall (for [filename (filter is-image? (.list file))]
+                (do
+                  (println "Found file: " filename)
+                  (mc/save db document (image-entry (str pathname "/" filename))))))
        ))))
 
+(defn -main [& args]
+  (save-meta (first args) "monger-test" "documents"))
+
+
 ;; (save-meta "/Users/iain/Pictures/Published/fullsize/2015/09/19-Beetle/DIW_5634.jpg" "monger-test" "documents")
-(save-meta "/Users/iain/Pictures/Published/fullsize/2015/09/19-Beetle" "monger-test" "documents")
+;;(save-meta "/Users/iain/Pictures/Published/fullsize/2015/09/19-Beetle" "monger-test" "documents")
