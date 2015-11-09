@@ -63,9 +63,11 @@
   "takes a map of metadata fields and converts the keywords from a string
   to a list of strings"
   [metadatamap]
-  (let [othermeta (dissoc metadatamap "Keywords")
-        keywords (str/split (metadatamap "Keywords") #";")]
-    (merge othermeta {"Keywords" keywords})))
+  (if (contains? metadatamap "Keywords")
+    (let [othermeta (dissoc metadatamap "Keywords")
+         keywords (str/split (metadatamap "Keywords") #";")]
+      (merge othermeta {"Keywords" keywords}))
+    metadatamap))
 
 (defn basename
   "Cuts the extension off the end of a string
@@ -126,8 +128,8 @@
 (defn save-meta
   "Saves the metadata from a specified picture, or from all the jpeg pictures
   in a directory to the database.
-  [pathname database document]"
-  ([pathname database document]
+  [database document pathname]"
+  ([database document pathname]
    (let [connection (mg/connect)
          db (mg/get-db connection database)
          file (java.io.File. pathname)]
@@ -135,14 +137,13 @@
        (let [imagemeta (image-entry pathname)]
          (mc/save db document imagemeta))
        (doall (for [filename (filter is-image? (.list file))]
-                (do
-                  (println "Found file: " filename)
-                  (mc/save db document (image-entry (str pathname "/" filename))))))
+                (mc/save db document (image-entry (str pathname "/" filename)))))
        ))))
 
 (defn -main [& args]
   (save-meta (first args) "monger-test" "documents"))
 
 
-;; (save-meta "/Users/iain/Pictures/Published/fullsize/2015/09/19-Beetle/DIW_5634.jpg" "monger-test" "documents")
-;;(save-meta "/Users/iain/Pictures/Published/fullsize/2015/09/19-Beetle" "monger-test" "documents")
+;; (save-meta "monger-test" "documents" "/Users/iain/Pictures/Published/fullsize/2015/09/19-Beetle/DIW_5634.jpg")
+
+;; (save-meta "monger-test" "documents" "/Users/iain/Pictures/Published/fullsize/2015/09/23-Frog")

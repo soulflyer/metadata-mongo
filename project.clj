@@ -11,5 +11,5 @@
                  [org.clojure/tools.cli "0.3.3"]
                  [metadata "0.1.1-SNAPSHOT"]]
   :main metadata-mongo.core
-  :bin {:name "runme"
+  :bin {:name "save-meta"
         :bin-path "~/bin"})
