@@ -1,6 +1,6 @@
 (defproject clojure-mongo "0.1.0-SNAPSHOT"
-  :description "FIXME: write description"
-  :url "http://example.com/FIXME"
+  :description "Save image metadata to a mongo database"
+  :url "https://github.com/soulflyer/metadata-mongo"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
 

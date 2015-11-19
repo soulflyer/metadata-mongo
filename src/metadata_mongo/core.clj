@@ -5,18 +5,8 @@
             [metadata.core :as metadata]
             [clojure.string :as str]
             [clojure.tools.cli :refer [parse-opts]])
-  (:import [com.mongodb MongoOptions ServerAddress]
-           org.bson.types.ObjectId)
+  (:import [com.mongodb MongoOptions ServerAddress])
   (:gen-class))
-
-(def cli-options
-  [["-h" "--help"]])
-
-;; (defn -main [& args]
-;;   (save-meta args))
-
-;; (defn -main [& args]
-;;   (println "My CLI received arguments:" args))
 
 (defn selectedmeta
   "returns a map of selected metdata fields from file"
@@ -141,7 +131,10 @@
        ))))
 
 (defn -main [& args]
-  (save-meta (first args) "monger-test" "documents"))
+  (let [database (first args)
+        collection (second args)
+        image-file (nth args 2)]
+    (save-meta database collection image-file)))
 
 
 ;; (save-meta "monger-test" "documents" "/Users/iain/Pictures/Published/fullsize/2015/09/19-Beetle/DIW_5634.jpg")
