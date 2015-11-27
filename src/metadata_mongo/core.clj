@@ -122,12 +122,14 @@
   ([database document pathname]
    (let [connection (mg/connect)
          db (mg/get-db connection database)
-         file (java.io.File. pathname)]
+         file (java.io.File. pathname)
+         fullpath (.getAbsolutePath file)]
      (if (.isFile file)
-       (let [imagemeta (image-entry pathname)]
+       (let [imagemeta (image-entry fullpath)]
          (mc/save db document imagemeta))
-       (doall (for [filename (filter is-image? (.list file))]
-                (mc/save db document (image-entry (str pathname "/" filename)))))
+       (doall
+        (for [filename (filter is-image? (.list file))]
+          (mc/save db document (image-entry (str fullpath "/" filename)))))
        ))))
 
 (defn -main [& args]
@@ -137,6 +139,6 @@
     (save-meta database collection image-file)))
 
 
-;; (save-meta "monger-test" "documents" "/Users/iain/Pictures/Published/fullsize/2015/09/19-Beetle/DIW_5634.jpg")
+;;(save-meta "monger-test" "documents" "/Users/iain/Pictures/Published/fullsize/2015/09/19-Beetle/DIW_5634.jpg")
 
-;; (save-meta "monger-test" "documents" "/Users/iain/Pictures/Published/fullsize/2015/09/23-Frog")
+;;(save-meta "monger-test" "documents" "/Users/iain/Pictures/Published/fullsize/2015/09/23-Frog")
