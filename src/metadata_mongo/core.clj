@@ -8,6 +8,17 @@
   (:import [com.mongodb MongoOptions ServerAddress])
   (:gen-class))
 
+(def cli-options
+  [["-d" "--database DATABASE" "specifies database to use"
+    :default "soulflyer"]
+   ["-i" "--image-collection IMAGE-COLLECTION" "specifies the image collection"
+    :default "images"]
+   ["-k" "--keyword-collection KEYWORD-COLLECTION" "specifies the keyword collection"
+    :default "keywords"]
+   ["-m" "--metadata-field" "field to be searched"
+    :default :Keywords]
+   ["-h" "--help"]])
+
 (defn selectedmeta
   "returns a map of selected metdata fields from file"
   [file]
@@ -133,10 +144,9 @@
        ))))
 
 (defn -main [& args]
-  (let [database (first args)
-        collection (second args)
-        image-file (nth args 2)]
-    (save-meta database collection image-file)))
+  (let [{:keys [options arguments errors summary]} (parse-opts args cli-options)
+        image-file (first args)]
+    (save-meta (:database options) (:image-collection options) image-file)))
 
 
 ;;(save-meta "monger-test" "documents" "/Users/iain/Pictures/Published/fullsize/2015/09/19-Beetle/DIW_5634.jpg")
