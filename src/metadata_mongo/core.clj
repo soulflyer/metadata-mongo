@@ -13,10 +13,6 @@
     :default "soulflyer"]
    ["-i" "--image-collection IMAGE-COLLECTION" "specifies the image collection"
     :default "images"]
-   ["-k" "--keyword-collection KEYWORD-COLLECTION" "specifies the keyword collection"
-    :default "keywords"]
-   ["-m" "--metadata-field" "field to be searched"
-    :default :Keywords]
    ["-h" "--help"]])
 
 (defn selectedmeta
@@ -144,9 +140,14 @@
        ))))
 
 (defn -main [& args]
-  (let [{:keys [options arguments errors summary]} (parse-opts args cli-options)
-        image-file (first args)]
-    (save-meta (:database options) (:image-collection options) image-file)))
+  (let [{:keys [options arguments errors summary]} (parse-opts args cli-options)]
+
+    (cond
+     (:help options)
+     (println (str "Usage:\nbin/save-meta [options] path/to/image/or/directory\n\noptions:\n" summary))
+
+     :else
+     (save-meta (:database options) (:image-collection options) (first args)))))
 
 
 ;;(save-meta "monger-test" "documents" "/Users/iain/Pictures/Published/fullsize/2015/09/19-Beetle/DIW_5634.jpg")
