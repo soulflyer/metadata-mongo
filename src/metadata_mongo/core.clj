@@ -55,7 +55,7 @@
                          "White Balance"
                          "White Balance Mode")
         mdata (metadata/getmeta file metadatafields)]
-    (zipmap (map #(str/replace % " " "-") (keys mdata)) (vals mdata))))
+    (zipmap (map #(str/replace % #"[ /]" "-") (keys mdata)) (vals mdata))))
 
 (defn meta-and-keywords-array
   "takes a map of metadata fields and converts the keywords from a string
@@ -155,6 +155,7 @@
 
 ;;(save-meta "monger-test" "documents" "/Users/iain/Pictures/Published/fullsize/2015/09/23-Frog")
 
+(def st "a string with spaces/slashes")
 (def ar (vector "a string" "another string"))
 (map #(replace % " " "-") ar)
 
