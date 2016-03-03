@@ -53,8 +53,9 @@
                          "Special Instructions"
                          "User Comment"
                          "White Balance"
-                         "White Balance Mode")]
-    (metadata/getmeta file metadatafields)))
+                         "White Balance Mode")
+        mdata (metadata/getmeta file metadatafields)]
+    (zipmap (map #(str/replace % " " "-") (keys mdata)) (vals mdata))))
 
 (defn meta-and-keywords-array
   "takes a map of metadata fields and converts the keywords from a string
@@ -153,3 +154,14 @@
 ;;(save-meta "monger-test" "documents" "/Users/iain/Pictures/Published/fullsize/2015/09/19-Beetle/DIW_5634.jpg")
 
 ;;(save-meta "monger-test" "documents" "/Users/iain/Pictures/Published/fullsize/2015/09/23-Frog")
+
+(def ar (vector "a string" "another string"))
+(map #(replace % " " "-") ar)
+
+(def picpath "/Users/iain/Pictures/Published/fullsize/2016/01/26-Pens-Birthday/DIW_6400.jpg")
+(def picfile (java.io.File. picpath))
+(= (selectedmeta picfile) (zipmap (keys (selectedmeta picfile)) (vals (selectedmeta picfile))))
+(def md (selectedmeta picfile))
+(zipmap (map #(str/replace % " " "-") (keys md)) (vals md))
+md
+(selectedmeta picfile)
