@@ -53,8 +53,9 @@
                          "Special Instructions"
                          "User Comment"
                          "White Balance"
-                         "White Balance Mode")]
-    (metadata/getmeta file metadatafields)))
+                         "White Balance Mode")
+        mdata (metadata/getmeta file metadatafields)]
+    (zipmap (map #(str/replace % #"[ /]" "-") (keys mdata)) (vals mdata))))
 
 (defn meta-and-keywords-array
   "takes a map of metadata fields and converts the keywords from a string
