@@ -134,10 +134,15 @@
          fullpath (.getAbsolutePath file)]
      (if (.isFile file)
        (let [imagemeta (image-entry fullpath)]
+         (println (str "*********** _id: " (imagemeta "_id")))
          (mc/save db document imagemeta))
        (doall
         (for [filename (filter is-image? (.list file))]
-          (mc/save db document (image-entry (str fullpath "/" filename)))))
+          (let [fp (str/replace fullpath #"[/.]+$" "")
+                filepath (str fp "/" (last (path-items filename)))
+                imagemeta (image-entry filepath)]
+            (println (str "********** _id: " (imagemeta "_id")))
+            (mc/save db document imagemeta))))
        ))))
 
 (defn -main [& args]
