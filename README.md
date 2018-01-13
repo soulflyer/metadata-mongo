@@ -1,6 +1,6 @@
 # metadata-mongo
 
-A Clojure library designed to read the metadata from image files and store it in a mongo database.
+A Clojure library designed to read the metadata from image files and store it in a mongo database. The images provided must be at a path that ends in /yyyy/mm/project/image.xxx The path is used to create the year month and project fields in the database. The id of the record created will be a concatenation of these. These fields will also be stored in the record.
 
 ## Usage
 
