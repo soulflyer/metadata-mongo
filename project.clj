@@ -6,10 +6,11 @@
 
   ;; :repositories [["The Buzz Media Maven Repository"
   ;;                 {:url "http://maven.thebuzzmedia.com" :checksum :warn}]]
-  :dependencies [[org.clojure/clojure "1.7.0"]
+  :dependencies [[org.clojure/clojure "1.8.0"]
                  [com.novemberain/monger "3.0.1"]
                  [org.clojure/tools.cli "0.3.3"]
-                 [metadata "0.1.1-SNAPSHOT"]]
+                 [com.drewnoakes/metadata-extractor "2.18.0"]
+                 [yogthos/config "1.2.0"]]
   :main metadata-mongo.core
   :bin {:name "save-meta"
         :bin-path "~/bin"})

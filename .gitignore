@@ -12,3 +12,4 @@ pom.xml.asc
 .#*
 .tmux
 .DS_Store
+.clj-kondo
