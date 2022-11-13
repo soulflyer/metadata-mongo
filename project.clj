@@ -9,7 +9,7 @@
   :dependencies [[org.clojure/clojure "1.8.0"]
                  [com.novemberain/monger "3.0.1"]
                  [org.clojure/tools.cli "0.3.3"]
-                 [com.drewnoakes/metadata-extractor "2.18.0"]
+                 [com.drewnoakes/metadata-extractor "2.9.0"]
                  [yogthos/config "1.2.0"]]
   :main metadata-mongo.core
   :bin {:name "save-meta"

@@ -4,7 +4,11 @@
    [metadata-mongo.fields :refer [field-list]]
    [metadata-mongo.utils :refer [cleanup-keys]])
   (:import
-   (com.drew.imaging ImageMetadataReader)))
+   com.drew.metadata.Metadata
+   com.drew.metadata.Directory
+   com.drew.metadata.Tag
+   com.drew.metadata.xmp.XmpDirectory
+   com.drew.imaging.ImageMetadataReader))
 
 (defn gettags [taglist]
   (let [acc {}]
@@ -43,3 +47,17 @@
 (defn meta-with-keywords-vector
   [file]
   (keywords-string-to-vector (selected-meta file)))
+
+(comment
+(def filename "/Users/iain/Pictures/Published/fullsize/2015/09/01-Dragon/IMG_6666.jpg")
+(def file (java.io.File. filename))
+(getmeta file)
+(.getDirectories (ImageMetadataReader/readMetadata file))
+(let [imagedata (ImageMetadataReader/readMetadata file)
+         acc {}]
+     (reduce (fn [list tags]
+               (println "****" (gettags tags))
+               (merge list (gettags tags)))
+             acc (.getDirectories imagedata)))
+(.getValue (.next (.iterator (.getXMPMeta (first (.getDirectoriesOfType (ImageMetadataReader/readMetadata file) XmpDirectory))))))
+)
