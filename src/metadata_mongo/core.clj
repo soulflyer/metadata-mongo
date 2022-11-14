@@ -3,7 +3,7 @@
   (:require
    [clojure.string :as str]
    [clojure.tools.cli :refer [parse-opts]]
-   [metadata-mongo.utils :refer [path-items]]
+   [metadata-mongo.utils :refer [path-items is-image?]]
    [metadata-mongo.image :refer [image-entry]] 
    [monger.collection :as mc]
    [monger.core :as mg]))

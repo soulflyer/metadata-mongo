@@ -11,6 +11,13 @@
   [metadata-map]
   (zipmap (cleanup (keys metadata-map)) (vals metadata-map)))
 
+(defn is-image?
+  "Checks if a string ends in jpg"
+  [filename]
+  (if (re-find #".jpg$" filename)
+    true
+    false))
+
 (defn basename
   "Cuts the extension off the end of a string
   (basename \"file.jpg\")
