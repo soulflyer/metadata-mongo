@@ -7,7 +7,7 @@
   ;; :repositories [["The Buzz Media Maven Repository"
   ;;                 {:url "http://maven.thebuzzmedia.com" :checksum :warn}]]
   :dependencies [[org.clojure/clojure "1.8.0"]
-                 [com.novemberain/monger "3.0.1"]
+                 [com.novemberain/monger "3.6.0"]
                  [org.clojure/tools.cli "0.3.3"]
                  [com.drewnoakes/metadata-extractor "2.9.0"]
                  [yogthos/config "1.2.0"]]
